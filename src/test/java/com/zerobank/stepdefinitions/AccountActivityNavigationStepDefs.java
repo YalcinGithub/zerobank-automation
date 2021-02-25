@@ -17,6 +17,8 @@ public class AccountActivityNavigationStepDefs {
         login.the_user_enters_valid_username_and_password();
         new HomePage().onlineBankingButton.click();
         new HomePage().accountSummaryButton.click();
+
+        System.out.println();
     }
 
     @When("the user clicks on {string} link on the Account Summary page")
