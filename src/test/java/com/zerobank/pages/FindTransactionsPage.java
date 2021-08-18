@@ -34,8 +34,9 @@ public class FindTransactionsPage {
     @FindBy(xpath = "//div[@id='filtered_transactions_for_account']//tbody/tr//td[4]")
     public List<WebElement> allWithdrawal;
 
-    //*[@id="filtered_transactions_for_account"]//tr[1]/td[1]
-
     @FindBy(xpath = "//div[@id='filtered_transactions_for_account']//tbody/tr//td[3]")
     public List<WebElement> allDeposit;
+
+    @FindBy(xpath = "//select[@id='aa_type']")
+    public WebElement selectTypeButton;
 }

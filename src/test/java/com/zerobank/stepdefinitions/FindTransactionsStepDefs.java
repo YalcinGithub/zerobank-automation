@@ -8,6 +8,7 @@ import io.cucumber.java.en.*;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -54,20 +55,15 @@ public class FindTransactionsStepDefs {
     public void resultsTableShouldOnlyShowTransactionsDatesFromTo(String first, String last) throws ParseException {
         Date firstDate = convertToDate(first);
         Date lastDate = convertToDate(last);
-
         BrowserUtils.waitFor(2);
         List<WebElement> table = Driver.get().findElements(By.xpath("//*[@id='filtered_transactions_for_account']//tr"));
 
         for (int i = 0; i < (table.size()) - 1; i++) {
             String myXpath = "//*[@id='filtered_transactions_for_account']//tr[" + (i + 1) + "]/td[1]";
-
             WebElement dateFromTable = Driver.get().findElement(By.xpath(myXpath));
-
             Date getDate = convertToDate(dateFromTable.getText());
-
             Assert.assertTrue(isBetweenDates(firstDate, lastDate, getDate));
         }
-
     }
 
     @And("the results table should only not contain transactions dated {string}")
@@ -117,10 +113,9 @@ public class FindTransactionsStepDefs {
     @But("results table should {string} show descriptions containing {string}")
     public void resultsTableShouldNotShowDescriptionsContaining(String in_out, String expectedDescription) {
 
-        List<WebElement> table = new ArrayList<>();
+        List<WebElement> table;
         table = Driver.get().findElements(By.xpath("//*[@id='filtered_transactions_for_account']//tbody/tr"));
         BrowserUtils.waitFor(3);
-        Assert.assertTrue(table.size() > 0);
 
         for (int i = 0; i < table.size(); i++) {
             String myXpath = "//*[@id='filtered_transactions_for_account']//tbody/tr[" + (i + 1) + "]/td[2]";
@@ -131,78 +126,45 @@ public class FindTransactionsStepDefs {
             } else if (in_out.equals("only")) {
                 Assert.assertTrue(actualDescription.contains(expectedDescription.toUpperCase()));
             }
-
         }
     }
 
     @Then("results table should show {string} result under {string}")
-    public void resultsTableShouldShowResultUnder(String show, String column){
-        List<String> columnContent;
-        columnContent = BrowserUtils.getElementsText(Driver.get().findElements(By.xpath("//div[@id='filtered_transactions_for_account']//tbody/tr//td[4]")));
-        System.out.println("columnContent = " + columnContent);
-        System.out.println("columnContent.size() = " + columnContent.size());
+    public void resultsTableShouldShowResultUnder(String oneOrNo, String column) {
+        String xpathOFColumn = "";
+        if (column.equalsIgnoreCase("deposit")) {
+            xpathOFColumn = "//div[@id='filtered_transactions_for_account']//tbody/tr//td[3]";
+        } else if (column.equalsIgnoreCase("withdrawal")) {
+            xpathOFColumn = "//div[@id='filtered_transactions_for_account']//tbody/tr//td[4]";
+        }
 
-//        switch (column.toLowerCase()) {
-//            case "deposit":
-//                columnContent = BrowserUtils.getElementsText(findTransactionsPage.allDeposit);
-//                break;
-//            case "withdrawal":
-//                columnContent = BrowserUtils.getElementsText(findTransactionsPage.allWithdrawal);
-//        }
-//        int sizeOfItems = columnContent.size();
-//        if (show.toLowerCase().contains("one")) {
-//
-//            Assert.assertTrue(sizeOfItems >= 1);
-//        } else if (show.equalsIgnoreCase("no")) {
-//            for (String list : columnContent) {
-//                Assert.assertTrue(list.isEmpty());
-//            }
-//        } else {
-//            Assert.fail("Word undefined");
-//        }
+        List<String> allColumns;
+        allColumns = BrowserUtils.getElementsText(Driver.get().findElements(By.xpath(xpathOFColumn)));
+        List<String> columnsWithContent = new ArrayList<>();
+
+        for (String s : allColumns) {
+            if (!s.equals("")) {
+                columnsWithContent.add(s);
+            }
+        }
+
+        System.out.println("columnContent.size() = " + allColumns.size());
+        System.out.println("columnsWithContent.size() = " + columnsWithContent.size());
+
+        if (oneOrNo.contains("one")) {
+            Assert.assertTrue(columnsWithContent.size() > 0);
+        } else if (oneOrNo.contains("no")) {
+            Assert.assertFalse(columnsWithContent.size() > 0);
+        }
     }
-//{
-//
-//        int columnNumber = 0;
-//        if (typeSelection.equals("Withdrawal")) {
-//            columnNumber = 4;
-//        } else if (typeSelection.equals("Deposit")) {
-//            columnNumber = 3;
-//        }
-//
-//        boolean atLeastOne = false;
-//        List<String > myList = new ArrayList<>();
-//                myList = BrowserUtils.getElementsText(findTransactionsPage.allWithdrawal);
-//
-//        System.out.println("myList.size() = " + myList.size());
-//
-//        List<WebElement> temporaryList = Driver.get().findElements(By.xpath("(//*[@id='filtered_transactions_for_account']//tbody/tr)"));
-//        WebElement tempelement = Driver.get().findElement(By.xpath("//div[@id='filtered_transactions_for_account']//tbody/tr//td[4]"));
-//        System.out.println("tempelement = " + tempelement);
-//        System.out.println("temporaryList.size() = " + temporaryList.size());
-//
-//        for (int i = 0; i < myList.size(); i++) {
-//            String myXpath = "//*[@id='filtered_transactions_for_account']//tr[" + i + "]/td[" + columnNumber + "]";
-//            String columnInfo = Driver.get().findElement(By.xpath(myXpath)).getText();
-//            System.out.println("columnInfo = " + columnInfo);
-//            if (one_or_no.equals("no")) {
-//                System.out.println("ife girdi");
-//                Assert.assertEquals("", columnInfo);
-//            } else if ((one_or_no.equals("at least one")) && !columnInfo.equals("")) {
-//                atLeastOne = true;
-//                System.out.println("Elife girdi");
-//            }
-//
-//        }
-//
-//        if (one_or_no.equals("at least one")) {
-//            System.out.println("en son ife girmis");
-//            Assert.assertTrue(atLeastOne);
-//        }
-//
-//    }
+
 
     @When("user selects type {string}")
     public void userSelectsType(String typeSelection) {
+
+        Select selectTypeDropdown = new Select(findTransactionsPage.selectTypeButton);
+        selectTypeDropdown.selectByVisibleText(typeSelection);
+
     }
+
 }

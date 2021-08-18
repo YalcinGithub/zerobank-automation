@@ -17,20 +17,25 @@ public class LoginPage {
     public WebElement password;
     @FindBy(name = "submit")
     public WebElement submit;
+
     @FindBy(id = "primary-button")
     public WebElement ErrorPageBackToSafety;
+
     @FindBy(id = "signin_button")
     public WebElement signinButton;
+
     @FindBy(xpath = " //*[@id='login_form']/div[1]")
     public WebElement errorMessage;
+
     public String expectedErrorMessage = "Login and/or password are wrong.";
 
-    public void login() {
+    public void login() throws InterruptedException {
 
         signinButton.click();
         userName.sendKeys(ConfigurationReader.get("username"));
         password.sendKeys(ConfigurationReader.get("password"));
         submit.click();
+        Thread.sleep(5000);
         ErrorPageBackToSafety.click();
 
         // verification that we logged

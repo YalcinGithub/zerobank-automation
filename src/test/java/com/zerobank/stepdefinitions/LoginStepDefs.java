@@ -28,11 +28,7 @@ public class LoginStepDefs {
         String actualTitle = Driver.get().getTitle();
         Assert.assertEquals("Zero - Personal Banking - Loans - Credit Cards",actualTitle);
     }
-    //    @Then("the user should be able to login")
-//    public void the_user_should_be_able_to_login() throws InterruptedException {
-//        BrowserUtils.waitFor(3);
-//        String actualTitle = Driver.get().getTitle();
-//        Assert.assertEquals("Dashboard",actualTitle);
+
     @When("user tries to login with invalid {string} or {string}")
     public void user_tries_to_login_with_invalid_or(String username, String password) {
         LoginPage loginpage = new LoginPage();

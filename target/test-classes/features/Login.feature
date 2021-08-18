@@ -1,9 +1,10 @@
 @Login
 Feature: Users should be able to login
-  Background:
-    Given the user is on the login page
+  //Background:
+
 
   Scenario: Login with valid credentials
+    Given the user is on the login page
     When the user enters valid username and password
     Then the user should be able to login
 
